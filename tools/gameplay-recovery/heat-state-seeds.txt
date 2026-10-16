@@ -1,0 +1,2 @@
+gameplay/prefabs/shared/common/pf_weapon_heatlogic_class_schematics
+Gameplay/Prefabs/Affectors/States/Affector_CoolingPowerMultiplier_SuperSuccess

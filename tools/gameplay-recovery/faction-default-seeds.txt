@@ -1,0 +1,2 @@
+Gameplay/Equipment/Rifles/A280/U_BlasterRifle_A280
+Gameplay/Equipment/Rifles/A280/W_BlasterRifle_A280

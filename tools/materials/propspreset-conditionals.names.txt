@@ -1,0 +1,6 @@
+Shaders/Presets/Walrus/SS_PropsPreset
+Shaders/ExternalConditionals/ESS_UVsetAmount
+Shaders/ExternalConditionals/ESS_TextureOptions_01
+Shaders/ExternalConditionals/ESS_Emissive
+Shaders/ExternalConditionals/ESB_LODShader
+Shaders/ExternalConditionals/ESS_TexCoord0_Normal_Clamp_01

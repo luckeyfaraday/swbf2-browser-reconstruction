@@ -1,0 +1,3 @@
+Sound/VO/SoundPatches/SW02_VO_SoundPatches_InWorld_Hero
+Sound/VO/SoundPatches/SW02_VO_SoundPatches_InWorld_Hero_Effort
+Sound/VO/SoundPatches/SW01_VO_SoundPatches_InWorld_Hero

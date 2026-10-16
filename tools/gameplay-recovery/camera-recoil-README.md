@@ -1,0 +1,47 @@
+# Selected rifle camera recoil
+
+The E11 and A280 share the selected `WeaponSway_Default_Rifle`. Its camera spring is recovered from native consumers: **SpringConstant3000, SpringDamping0.84, threshold0**. Native `0x14165d040` advances each axis with:
+
+```text
+velocity = (velocity - (position-target)*SpringConstant*dt)
+           * pow(1-SpringDamping, 30*dt)
+position = position + velocity*dt
+```
+
+The constant30 is read from the installed executable at0x14303f56c. It normalizes damping; it does not establish the engine update frequency. At a supplied dt=1/60, damping is0.4 and an initially stationary spring moves one third of the way to a constant target on its first update. This is the recovered discrete integration order, not an analytic continuous spring. JavaScript uses doubles rather than native float32/libm bit parity.
+
+`0x141657e30` binds `GunSwayData.CameraRecoil` to the two spring axes and initializes their state to0. `0x14165d570` selects `Recoil[pose*2+zoom]` with24-byte records. It adds a uniform horizontal angle between the selected min/max and a fixed negative vertical increment, converting degrees byπ/180 and clamping to the source maxima. The selected standing increments are0.7° hip and0.55° zoom; horizontal bounds are±0.5° hip and±0.3° zoom. It consumes a second random draw even though both vertical bounds are equal. The selected first-shot multiplier and shooting-recovery scale are1.
+
+On updates without a shot, elapsed time advances before recovery. Each target approaches0 by `elapsed² * RecoilAmplitudeDecreaseFactor * 0.3 * dt`, with no extra degree conversion in that recovery branch. `0x14165c910` filters targets by threshold degrees converted to radians. The source enables the camera spring while zoomed; it is also selected unzoomed. The selected unmodified, suppression0 branch is implemented; native suppression uses `log10(1+9*suppression)` and conditional modifier records, which this adapter excludes.
+
+The spring is separate from decoded firing animation. All12 retained E11/A280 `CameraJoint`/`CameraBase` translation and rotation tracks are constant zero/normalized identity. Their source weapon and arm animation remains independent.
+
+The native output bridge is established through aiming-state submission. GunSway virtual+0xf8 (`0x14165a5b0`) returns the selected `[yaw,pitch]` pair at runtime+0x170. `0x141698d00` writes it to `AimingSimDynamicState.Recoil` at+0x188, with change bit0x20000. It submits through manager144609a20 virtual+0x28; the active vtable143479d98 dispatches `0x1416c14f0`/`0x1416c6790` to state copying in `0x142e1fbe0`. This is an aiming input, not evidence that native camera rotation directly adds this pair.
+
+The downstream boundary is now traced in [camera-aiming-evidence.json](camera-aiming-evidence.json). Native recoil subtracts `RecoilCompensation` at+8/+c from raw targets before spring evaluation, then subtracts it again from the selected spring result and stores the corrected spring position. `141693a10` consumes only solved aim movement with the same sign as remaining recoil, capped at its magnitude; excess movement changes the stored base aim. `14169bdd0` publishes the consumed amount, and `141683e40` passes that pair back to GunSway. It is not raw mouse movement. The helper accepts `recoilCompensation`; `aimDelta` remains a compatibility alias with exactly that meaning.
+
+GunSway exposes a raw-target matrix through virtual+108 and a spring-output matrix through+110. `14166f230` supplies the latter to `SoldierFirstPersonCameraSimState.ProceduralTransform`. The unanimated branch of `1416aa760` appends that rotation to the base first-person transform, then negates right/forward basis columns and applies the independent shake transform. Conjugating the recovered native `Rx(pitch)*Ry(yaw)` by that explicit basis flip gives the local Three rotation **`Rx(-pitch)*Ry(yaw)`**. `cameraLocalQuaternion` represents this exact rotation and must multiply on the right of the base camera quaternion. `presentationRadians` uses **XYZ order**, with positive native yaw and negated pitch. Do not add these local angles directly to the world controller Euler angles.
+
+The initial weapon firing basis uses the raw target through `14164d550`, but selected `ForceSpawnToCamera=true` and `ActiveForceSpawnToCamera=true` enable a later server override (`1417d58b0`). That can replace the shot basis from the active camera entity plus a weapon correction transform. The selected runtime camera/correction values and the following optional aim correction have not been established. Therefore neither raw-target nor spring-output recoil is claimed as the final native projectile direction. The separate [camera-aiming.json](../../web/public/assets/camera-aiming.json) exposes this unresolved precedence explicitly.
+
+`web/src/camera-recoil.js` exports:
+
+```js
+const recoil=createCameraRecoil(document,weaponId,{sourceGuid,random});
+recoil.fire({isFirstShot:false}); // accepted weapon shots only
+recoil.update(dt,{pose:'stand',aiming:false,firing:false,alive:true,recoilCompensation:{yaw:0,pitch:0}});
+const {nativeRadians,cameraLocalQuaternion}=recoil.snapshot();
+recoil.reset();
+```
+
+`fire()` raises a pending boolean consumed once by the next nonzero update. It does not instantly rotate anything. Two accepted shots before an update throw because that exceeds the adapter scheduling contract. Advance once in simulation and read snapshots during rendering; do not advance a second time from presentation. Death resets state and rejects firing until alive/reset. Unknown IDs or mismatched source GUIDs return null. `resolveCameraRecoil` and `stepNativeCameraSpring` expose guarded configuration and the recovered numerical kernel independently.
+
+`consumeNativeRecoil(remainingRecoil, solvedAimMovement)` returns `{remaining, compensation, baseMovement}`. `consumeBrowserRecoil` maps browser controller movement to native angle axes (native yaw is negative browser yaw; native pitch has the same sign) and maps the resulting base movement back. Keep the returned remaining recoil across input events until a new simulation recoil sample replaces it, accumulate consumed compensation for the simulation update, and apply only the returned base movement to the controller. Native render/simulation scheduling is still unmeasured, so a browser event loop must state its ordering. The helper never mutates a camera, controller, projectile ray, source GLB or animation mixer. Keep recovered weapon firing animation active and apply no second kick to the arms/gun rig.
+
+The browser integration loads both source documents only alongside the selected faction weapon package. `BattleRuntime` creates the player recoil helper with the selected weapon ID/source guard. Its controller first solves/clamps one input sample through `setInput`; only excess movement after `consumeBrowserRecoil` is retained through `setLook`, before the movement step. Each accepted first-person shot queues one pulse. One helper update after shot selection applies the consumed compensation and advances the spring. `cameraPose` right-multiplies the returned local quaternion; `updateView` only reads state. Death, respawn, round reset and view changes clear recoil. Third-person camera composition is outside this recovered boundary, so third-person shots do not add a first-person pulse. These scheduling, controller-mapping, view-transition and RNG decisions are explicit reconstruction policies in `CAMERA_RECOIL_RUNTIME_POLICY`.
+
+The existing shooter-eye/crosshair convergence rule uses the currently rendered first-person spring view, then source spread. It does not apply the raw target again. This final projectile rule is explicitly **inferred**, because the selected native camera entity, weapon correction and optional aim correction remain unresolved. Both `gameplay.provenance.cameraRecoil` and `observe().cameraRecoil.runtimePolicy` retain that distinction.
+
+`camera-recoil-runtime.test.js` verifies both selected source weapon configs in a CPU floor fixture with production controller, fire gate and heat behavior. It checks local matrix composition at nonzero base angles, one pulse per accepted shot through source overheat, read-only rendering, compensation/excess movement, wrapped yaw and clamped pitch, all lifecycle resets, no weapon attachment kick, the declared inferred crosshair rule, and unchanged fixtures without source recoil. The test intentionally uses fixture geometry and zero dispersion to isolate this boundary; `source-combat.test.js` separately retains original rigs, clips and capsules. On2026-10-15, all25 focused camera/aiming/runtime/source-combat tests and all261 unit tests passed. No GPU/native execution was performed for this integration.
+
+Reproduce: run `camera-aiming-build.py`, then `camera-recoil-build.py` from `tools/gameplay-recovery`. The original package verifies9 selected source observations,6 links,13 field records,5 pointers,14 functions,6 constants,2 imports and12 constant camera animation tracks. The boundary adds21 native spans,16 fields,8 pointers and both selected Shot records. Run `node --test test/camera-recoil.test.js test/camera-aiming.test.js` from `web`: thirteen CPU tests include native-byte/source provenance, hand-calculated spring response, partial/excess/opposite compensation, yaw wrapping, independent matrix composition at nonzero base yaw/pitch, raw/spring distinction and lifecycle. No native execution or GPU browser run was performed.

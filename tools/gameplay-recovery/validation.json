@@ -1,0 +1,33 @@
+{
+  "evidenceId": "EV-GAMEPLAY-20261015-02",
+  "validatedAtUtc": "2026-10-15T04:32:18.699Z",
+  "kind": "source-parameter-integration-and-browser-runtime-validation",
+  "unitTests": { "command": "cd web; npm test", "passed": 18, "failed": 0 },
+  "build": { "command": "cd web; npm run build", "passed": true },
+  "browser": {
+    "command": "cd web; npm run check:browser",
+    "passed": true,
+    "checks": 8,
+    "errors": [],
+    "report": "web/test-results/browser-check.json",
+    "screenshotInspected": "web/test-results/synthetic-third-person.png",
+    "syntheticFixture": true,
+    "originalGameParity": false,
+    "fixtureFramesPerSecond": 127.1,
+    "fixtureDrawCalls": 2,
+    "fixtureTriangles": 192
+  },
+  "changes": [
+    "Nine runtime parameters verified against retained installed EBX document hashes and JSON pointers.",
+    "Projectile damage uses recovered near/far damage and distance endpoints with explicitly inferred linear interpolation.",
+    "Projectile lifetime clips travel on its final partial tick and prevents hitting targets beyond that lifetime.",
+    "Prior runtime regression fixes retained: manifest feet spawn coordinates, sub-tick firing cadence, combat freeze after decisive kill."
+  ],
+  "limitations": [
+    "Authentic vibe CLI and required vibe verify gate unavailable; this is a labeled fallback.",
+    "Fixture performance does not estimate original map performance.",
+    "Original native game startup unavailable; native behavior and visual fidelity unverified.",
+    "Source projectile speed precedence, heat state machine, movement graph, score/timer overrides, recoil/spread and camera FOV conventions remain unresolved.",
+    "Original map geometry, materials, characters, weapons, animation and sound acceptance gates are owned by the asset pipeline and are not passed by these checks."
+  ]
+}

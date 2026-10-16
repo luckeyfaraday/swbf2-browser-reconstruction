@@ -1,0 +1,72 @@
+# Dependencies and build output
+node_modules/
+web/dist/
+
+# Extracted original game data and generated payloads (multi-GB, regenerable from the
+# installed game with the tools/ pipelines; never commit copyrighted game assets)
+web/public/assets/
+exports/
+web/test-results/
+test-results/
+
+# Third-party tool bundles and their scratch/work directories
+tools/frosty-*/
+tools/frosty-source/
+tools/FrostyEditor*.rar
+tools/cua-driver*
+tools/bf2-extract/runtime-modern/
+tools/bf2-extract/work/
+tools/bf2-extract/probe-work/
+tools/bf2-extract/mono.cecil/
+tools/gameplay-recovery/state/
+tools/gameplay-recovery/inventory-gameplay/
+
+# Binaries, archives, caches and logs
+*.exe
+*.dll
+*.pdb
+*.zip
+*.rar
+*.7z
+*.cache
+*.log
+*.gbf
+*.rep/
+
+# Local runtime state
+.local/
+*.pyd
+tools/bf2-extract/npm-cache/
+tools/materials/python-libs/
+__pycache__/
+
+# Embedded third-party reference repositories (have their own .git)
+tools/characters/assetbank-reference/
+tools/characters/assetbank-vbr-reference/
+
+# Generated locally from your own install (mechanical translations of original
+# shader bytecode); never commit them. Recreate with
+#   python tools/materials/blaster-bolt-build-vertex.py
+web/src/blaster-bolt-vertex.js
+tools/materials/blaster-bolt-vertex-equations.glsl
+
+# Build outputs of the C# reference tools
+tools/**/bin/
+tools/**/obj/
+
+# Regenerated from your own install by the recovery scripts; may contain game
+# data. Keep them local.
+evidence/
+**/ebx/
+*.ndjson
+tools/gameplay-recovery/*-evidence.json
+tools/gameplay-recovery/*observations.json
+tools/gameplay-recovery/schema-*.json
+**/export.manifest.json
+**/session.json
+tools/bf2-extract/*-schema.json
+tools/bf2-extract/*.txt
+!tools/bf2-extract/USAGE.txt
+
+# But track the hero descriptor (no game data)
+!web/public/assets/heroes.json

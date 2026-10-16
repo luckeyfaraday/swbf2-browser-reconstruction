@@ -1,0 +1,121 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import crypto from 'node:crypto';
+import * as THREE from 'three';
+import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+import {sourceVertexFrame,sourceExplicitVertexFrame,createSourceTangentWitness,sourceTangentFrameKind} from '../src/source-tangent-frame.js';
+import {prepareRecoveredCeilingMaterials} from '../src/ceiling-material.js';
+import {createSourceProbeLighting} from '../src/source-probes.js';
+import {createSourceLodController} from '../src/source-lods.js';
+const root=new URL('../../',import.meta.url),read=p=>fs.readFileSync(new URL(p,root)),json=p=>JSON.parse(read(p));
+const sha=b=>crypto.createHash('sha256').update(b).digest('hex'),buffer=b=>b.buffer.slice(b.byteOffset,b.byteOffset+b.byteLength);
+const parts=[32,44].map(stride=>{const path=`exports/materials/native-tangent-ceiling${stride}/`,stem=stride===44?'native-tangent-explicit':'native-tangent-witness';return {stride,path,doc:json(path+stem+'.json'),payload:read(path+stem+'.bin'),evidence:json(path+'evidence.json'),routing:json(path+'shader-routing.json')};});
+
+test('Ceiling original RVM pairs the exact ordinary/atlas PS with signed32 and independent44 input layouts',()=>{
+  const bytes=read('exports/materials/rvm/0.res'),index=json('exports/materials/rvm/block-index.json').blocks,block=k=>bytes.subarray(index[k].offset,index[k].offset+index[k].size);
+  assert.deepEqual(parts.map(p=>[p.stride,p.doc.records.length,p.evidence.stats.baseSectionInstances]),[[32,20,492],[44,1,1]]);
+  for(const p of parts){
+    assert.equal(sha(bytes),p.routing.sourceRvmSha256);assert.equal(sha(read(p.path+'shader-routing.json')),p.evidence.shaderRoutingSha256);
+    assert.equal(sha(read(p.path+'selection.json')),p.evidence.selectionSha256);assert.equal(sha(read(p.path+'manifest.json')),p.evidence.extractionSha256);
+    for(const [i,s]of p.routing.shaders.entries()){
+      assert.equal(s.pixel,i?'96644c0f9e':'1fb4d25b38');assert.equal(sha(block(s.inputLayoutBlock)),s.inputLayoutSha256);
+      assert.equal(sha(read(`exports/materials/ceiling-shader/${s.vertex}.dxbc`)),s.vertexSha256);assert.equal(sha(read(`exports/materials/ceiling-shader/${s.pixel}.dxbc`)),s.pixelSha256);
+      assert.deepEqual(s.inputLayout.map(r=>[r.index,r.dxgiFormat,r.offset]),p.stride===44?[[0,6,0],[1,10,12],[2,10,20],[3,10,28],[4,10,36]]:p.stride===36?[[0,10,0],[1,10,8],[2,10,16],[3,10,24],[4,34,32]]:[[0,10,0],[1,10,8],[2,10,16],[3,10,24]]);
+      for(const path of Object.values(s.paths))for(const edge of path){const n=block(edge.from).readBigUInt64LE(edge.offset);assert.equal(n,BigInt(edge.encoded));assert.equal((n&0xffffffffffn).toString(16).padStart(10,'0'),edge.to);}
+      const asm=read(`exports/materials/ceiling-shader/${s.pixel}.asm`).toString(),input=i?3:2;
+      for(let axis=0;axis<3;axis++)assert.match(asm,new RegExp(`dp3 r\\d+\\.${'xyz'[axis]}, r\\d+\\.xyzx, v${input+axis}\\.xyzx`));
+      assert.ok(asm.includes(i?'dp3 r2.x, r4.xyzx, r4.xyzx\r\nrsq r2.x, r2.x\r\nmul r2.xyw, r2.xxxx, r4.xyxz':'dp3 r2.z, r5.xyzx, r5.xyzx\r\nrsq r2.z, r2.z\r\nmul r4.xyz, r2.zzzz, r5.xyzx'));
+    }
+  }
+});
+
+test('Ceiling21 original section/LOD records retain every source T/B/sign and match real GLTF attributes exactly',async()=>{
+  const loader=new GLTFLoader();loader.register(()=>({name:'ceiling-frame-image-stub',loadTexture:async()=>new THREE.Texture()}));let count=0,vertices=0,baseInstances=0;
+  for(const p of parts){
+    assert.equal(sha(p.payload),p.doc.sha256);
+    for(const row of p.doc.records){
+      const bytes=read(p.path+row.vertexFile),indices=read(p.path+row.indexFile),glb=read(row.glbPath);
+      assert.equal(sha(bytes),row.vertexSha256);assert.equal(sha(indices),row.indexSha256);assert.equal(sha(glb),row.glbSha256);
+      const gltf=await loader.parseAsync(buffer(glb),'');let mesh;gltf.scene.traverse(m=>{if(m.isMesh&&gltf.parser.associations.get(m)?.primitives===row.primitiveIndex)mesh=m;});
+      assert.equal(mesh.material.userData.sourceMaterialId,row.sourceMaterialId);assert.equal(sha(Buffer.from(mesh.geometry.index.array.buffer)),row.indexSha256);
+      const position=p.stride===44?0:0,normal=p.stride===44?20:8,tangent=p.stride===44?28:16,uv=p.stride===44?36:24,itemSize=p.stride===44?3:4;
+      for(let i=0;i<row.vertexCount;i++){
+        for(let axis=0;axis<3;axis++){
+          const half=at=>THREE.DataUtils.fromHalfFloat(bytes.readUInt16LE(i*p.stride+at));
+          assert.equal(mesh.geometry.attributes.position.array[i*3+axis],p.stride===44?bytes.readFloatLE(i*p.stride+position+axis*4):half(axis*2));
+          assert.equal(mesh.geometry.attributes.normal.array[i*3+axis],half(normal+axis*2));
+          assert.equal(p.payload.readFloatLE(row.tangentOffset+(i*itemSize+axis)*4),half(tangent+axis*2));
+          if(p.stride===44)assert.equal(p.payload.readFloatLE(row.binormalOffset+(i*3+axis)*4),half(12+axis*2));
+        }
+        if(itemSize===4)assert.equal(p.payload.readFloatLE(row.tangentOffset+i*16+12),THREE.DataUtils.fromHalfFloat(bytes.readUInt16LE(i*p.stride+6)));
+        for(let axis=0;axis<2;axis++)assert.equal(mesh.geometry.attributes.uv.array[i*2+axis],THREE.DataUtils.fromHalfFloat(bytes.readUInt16LE(i*p.stride+uv+axis*2)));
+      }
+      if(row.sourceLod){assert.equal(row.lodSourceMaterial.materialParametersEqualLod0,true);assert.ok(row.lodSourceMaterial.sharedParameterRoot);}else baseInstances+=row.placementCount;
+      count++;vertices+=row.vertexCount;
+    }
+  }
+  assert.equal(count,21);assert.equal(vertices,6092);assert.equal(baseInstances,493);
+  const rows=parts.flatMap(p=>p.doc.records),base=new Set(rows.filter(r=>r.sourceLod===0).map(r=>`${r.assetId}/${r.sourceMaterialId}`));
+  const expected=json('web/public/assets/source-lods.json').assets.flatMap(a=>a.lods.flatMap(l=>l.sections.filter(s=>base.has(`${a.assetId}/${s.lod0MaterialId}`)).map(s=>`${a.assetId}/${l.level}/${s.sourceMaterialId}`)));
+  assert.equal(expected.length,1);assert.deepEqual(new Set(expected),new Set(rows.filter(r=>r.sourceLod>0).map(r=>`${r.assetId}/${r.sourceLod}/${r.sourceMaterialId}`)));
+});
+
+test('all four original Ceiling VS permutations match source frame helper against unchanged CPU WARP output',()=>{
+  let comparisons=0,maxError=0;
+  for(const p of parts){
+    const fixture=p.evidence.inputFixture,input=read(p.path+'vertex-input.bin'),sources=p.doc.records.map(r=>read(p.path+r.vertexFile));assert.equal(sha(input),fixture.sha256);
+    for(const report of json(p.path+'warp-execution.json').reports){
+      const out=read(p.path+report.shader+'.warp.bin');assert.equal(sha(out),report.outputSha256);assert.equal(sha(input),report.inputSha256);assert.equal(report.shaderSha256,p.routing.shaders.find(s=>s.vertex===report.shader).vertexSha256);
+      for(let c=0;c<12;c++)for(let i=0;i<fixture.samples.length;i++){
+        const s=fixture.samples[i],raw=sources[s.recordIndex],offset=(c*fixture.vertices+i)*48,values=at=>[0,1,2].map(a=>THREE.DataUtils.fromHalfFloat(raw.readUInt16LE(s.sourceVertex*p.stride+at+a*2)));
+        const frame=p.stride===44?sourceExplicitVertexFrame(values(20),values(28),values(12),fixture.cases[c].matrix):sourceVertexFrame(values(8),[...values(16),THREE.DataUtils.fromHalfFloat(raw.readUInt16LE(s.sourceVertex*p.stride+6))],fixture.cases[c].matrix);
+        for(let axis=0;axis<3;axis++)for(const [expected,actual]of ['T','B','N'].map((key,col)=>[frame[key][axis],out.readFloatLE(offset+axis*16+col*4)])){const error=Math.abs(expected-actual);assert.ok(Number.isFinite(actual)&&error<5e-7);maxError=Math.max(error,maxError);comparisons++;}
+      }
+    }
+  }
+  assert.equal(comparisons,232200);console.log(JSON.stringify({ceilingTangentComparisons:comparisons,maxError,sourceRecords:21,sourceSectionInstances:493}));
+});
+
+test('published Ceiling frames preserve three interpolated columns and source emission/constants through every recovered native LOD and leave unbound geometry derivative',async()=>{
+  const published=json('web/public/assets/native-tangent-witness.json'),raw=read('web/public'+published.url),adapter=createSourceTangentWitness(published,buffer(raw));
+  assert.equal(sha(raw),published.sha256);assert.equal(published.publication.preparedSections,273);assert.equal(published.publication.baseSectionInstances,5558);
+  for(const p of parts){
+    const part=published.sourceCoverage.find(c=>c.evidenceId===p.evidence.evidenceId);assert.ok(part);assert.deepEqual(raw.subarray(part.byteOffset,part.byteOffset+part.byteLength),p.payload);
+    assert.equal(part.evidenceSha256,sha(read(p.path+'evidence.json')));
+    const rows=published.records.filter(r=>r.sourceCoverageEvidenceId===p.evidence.evidenceId);assert.equal(rows.length,p.doc.records.length);
+    rows.forEach((r,i)=>{assert.equal(r.tangentOffset,part.byteOffset+p.doc.records[i].tangentOffset);if(p.stride===44)assert.equal(r.binormalOffset,part.byteOffset+p.doc.records[i].binormalOffset);});
+  }
+  const loader=new GLTFLoader();loader.register(()=>({name:'CeilingNativeFrameImageStub',loadTexture:async()=>new THREE.Texture()}));
+  const meshFor=async row=>{const gltf=await loader.parseAsync(buffer(read(row.glbPath)),'');adapter.applyGeometry(gltf,{id:row.assetId},row.sourceLod);let mesh;gltf.scene.traverse(m=>{if(m.isMesh&&gltf.parser.associations.get(m)?.primitives===row.primitiveIndex)mesh=m;});return mesh;};
+  const oldLoad=THREE.TextureLoader.prototype.loadAsync;THREE.TextureLoader.prototype.loadAsync=async()=>new THREE.Texture();const instances=[];
+  try{
+    const recovered=await prepareRecoveredCeilingMaterials(json('web/public/assets/recovered-ceiling-materials.json'));
+    for(const group of Map.groupBy(parts.flatMap(p=>p.doc.records),r=>`${r.assetId}/${r.lod0MaterialId}`).values()){
+      group.sort((a,b)=>a.sourceLod-b.sourceLod);const meshes=[];for(const row of group)meshes.push(await meshFor(row));
+      const mesh=meshes[0],normal=mesh.geometry.attributes.normal,scene=new THREE.Scene();scene.add(mesh);recovered.apply({scene},{id:group[0].assetId});
+      const probes=createSourceProbeLighting(json('web/public/assets/source-probes.json'),buffer(read('web/public/assets/source-probes.bin')));instances.push(probes);probes.add(scene);
+      const initial=mesh.material,lods=createSourceLodController([{mesh,assetId:group[0].assetId,levels:meshes.slice(1).map((m,i)=>({level:group[i+1].sourceLod,distance:10*(i+1),geometry:m.geometry}))}],{
+        adaptGeometry:(m,g)=>probes.adaptGeometry(m,g),adaptMaterial:(m,g)=>probes.adaptMaterial(m,g)});
+      const sequence=[...group.map((r,i)=>[i===0?0:10*i+1,r.sourceLod]),[0,0]];
+      for(const [distance,level]of sequence){
+        lods.update(new THREE.Vector3(distance,0,0),true);assert.equal(mesh.geometry.userData.sourceTangentWitness.sourceLod,level);assert.equal(mesh.material,initial);
+        const kind=group[0].sourceVertexStride===44?'explicit-binormal':'signed-cross';assert.equal(sourceTangentFrameKind(mesh.geometry),kind);
+        const shader={vertexShader:THREE.ShaderLib.standard.vertexShader,fragmentShader:THREE.ShaderLib.standard.fragmentShader,uniforms:{}};mesh.material.onBeforeCompile(shader,{});
+        assert.match(shader.vertexShader,/#define BF2_SOURCE_TANGENT_FRAME 1/);assert.equal(shader.vertexShader.includes('BF2_SOURCE_EXPLICIT_BINORMAL'),kind==='explicit-binormal');
+        assert.ok(!shader.fragmentShader.includes('bf2_ceiling_tbn(-vViewPosition'));assert.ok(!shader.fragmentShader.includes('normalize(bf2_ceiling_geometricNormal)'));
+        assert.equal(shader.uniforms.bf2_ceiling_cb.value.length,5);assert.match(shader.vertexShader,/varying vec3 bf2_ceiling_geometricNormal/);assert.match(shader.vertexShader,/varying vec3 bf2_sourceT, bf2_sourceB/);
+        assert.equal((shader.vertexShader.match(/varying vec3 bf2_ceiling_geometricNormal/g)??[]).length,1);
+        assert.match(shader.fragmentShader,/totalEmissiveRadiance = vec3\(0.0\)/);assert.equal((shader.fragmentShader.match(/\+bf2_ceiling_surface\.emissive/g)??[]).length,1);
+        assert.match(shader.fragmentShader,/metalnessFactor = bf2_ceiling_surface.nativeScalar/);assert.equal(probes.snapshot().sourceTangents.mismatches,0);
+      }
+      assert.equal(mesh.geometry.attributes.normal,normal);
+    }
+    const recipe=json('web/public/assets/recovered-ceiling-materials.json').materials[0],fallback=new THREE.Mesh(new THREE.BoxGeometry(),new THREE.MeshStandardMaterial()),fallbackScene=new THREE.Scene();
+    fallback.material.userData.sourceMaterialId=recipe.materialId;fallbackScene.add(fallback);recovered.apply({scene:fallbackScene},{id:recipe.assetId});
+    assert.equal(fallback.material.userData.sourceTangentFrame.enabled,false);
+    const shader={vertexShader:THREE.ShaderLib.standard.vertexShader,fragmentShader:THREE.ShaderLib.standard.fragmentShader,uniforms:{}};fallback.material.onBeforeCompile(shader,{});
+    assert.ok(!shader.vertexShader.includes('BF2_SOURCE_TANGENT_FRAME'));assert.ok(!shader.vertexShader.includes('varying vec3 bf2_ceiling_geometricNormal'));
+    assert.match(shader.fragmentShader,/bf2_ceiling_tbn\(-vViewPosition/);fallback.geometry.dispose();fallback.material.dispose();
+  }finally{THREE.TextureLoader.prototype.loadAsync=oldLoad;for(const p of instances)p.dispose();}
+});

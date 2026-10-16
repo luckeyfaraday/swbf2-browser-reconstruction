@@ -1,0 +1,4 @@
+gameplay/equipment/rifles/a280/a280_mesh1p_mesh
+characters/dark/d_assault_orig/d_assault_orig_01_1p/d_assault_orig_01_1p_upperbody_mesh
+characters/light/l_assault_orig/l_assault_orig_ds_01/l_assault_orig_ds_01_1p_upperbody_mesh
+characters/bodyparts/hands_01/hands_01_1p_mesh

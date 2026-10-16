@@ -1,0 +1,5 @@
+Gameplay/SoldierStateMachine/DefaultSoldierStateMachine
+Gameplay/Equipment/Shared/ZoomLevels/ZoomLevel_0_Default
+Gameplay/Equipment/Shared/ZoomLevels/ZoomLevel_1_Default_Short_UseZoomMesh
+Gameplay/Equipment/Rifles/E11/U_BlasterRifle_E11
+Gameplay/Characters/DefaultSoldierBoneCollision

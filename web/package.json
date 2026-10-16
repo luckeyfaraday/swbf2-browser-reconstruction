@@ -1,0 +1,22 @@
+{
+  "name": "battlefront-browser-runtime",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 7737 --strictPort",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1 --port 7737 --strictPort",
+    "test": "node --test test/*.test.js",
+    "check:browser": "node test/browser-check.mjs",
+    "check:actual-map": "node test/actual-map-check.mjs"
+  },
+  "dependencies": {
+    "three": "^0.186.1",
+    "three-mesh-bvh": "^0.9.16"
+  },
+  "devDependencies": {
+    "playwright": "^1.64.1",
+    "vite": "^8.3.4"
+  }
+}

@@ -1,0 +1,6 @@
+Gameplay/Equipment/Rifles/_DefaultWeapon/WeaponFiring_Default_BlasterRifle
+Gameplay/Equipment/Rifles/_DefaultWeapon/OverheatConfig_Default_Rifle
+Gameplay/Equipment/Rifles/_DefaultWeapon/SprintSettings_Default_Rifle
+Gameplay/Characters/DefaultSoldierPhysics
+Gameplay/GameModes/TeamDeathmatch/PF_TeamDeathmatch_Logic
+Gameplay/GameModes/TeamDeathmatch/TeamDeathmatchStateManager

@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <ImplicitUsings>disable</ImplicitUsings>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="../assetbank-reference/Ant/DCT/DctDecompressor.cs" Link="Upstream/DctDecompressor.cs" />
+    <Compile Include="../assetbank-reference/Ant/DCT/DofTable.cs" Link="Upstream/DofTable.cs" />
+    <Compile Include="../assetbank-reference/Ant/DCT/BitReader.cs" Link="Upstream/BitReader.cs" />
+  </ItemGroup>
+</Project>

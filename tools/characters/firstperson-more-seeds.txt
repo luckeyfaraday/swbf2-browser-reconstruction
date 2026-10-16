@@ -1,0 +1,3 @@
+Win32/weapons/w_blasterrifle_a280_1p_bpb
+Win32/weapons/w_blasterrifle_e11_1p_bpb
+characters/dark/d_assault_orig/d_assault_orig_01/mpvur_d_assault_orig_01_bpb_bundle1p_win32

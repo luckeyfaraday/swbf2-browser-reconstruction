@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:,"><title>Battlefront II · Command Sector North</title></head>
+<body>
+  <canvas id="game" aria-label="Battlefront browser game"></canvas>
+  <div id="hud" hidden>
+    <div id="source-scope" aria-hidden="true" hidden></div>
+    <div class="scoreboard"><span id="score-blue">0</span><div><b id="mode-name">BLAST</b><span id="timer">10:00</span></div><span id="score-red">0</span></div>
+    <div id="crosshair"><i></i><i></i><i></i><i></i></div><div id="hitmarker" hidden>×</div>
+    <div id="feed" aria-live="polite"></div>
+    <div id="damage-vignette"></div>
+    <div class="bottom"><div><div id="player-status">ASSAULT</div><div class="health-track"><div id="health-fill"></div></div><span id="health-label">150</span></div><div class="weapon-status"><span id="weapon-name">BLASTER</span><div class="heat-track"><div id="heat-fill"></div><div id="cooling-zones" hidden><i id="cooling-success"></i><i id="cooling-super"></i></div></div><span id="heat-label">READY</span></div></div>
+    <div id="hero-hud" hidden><div class="hero-vitals"><div id="hero-name">DARTH VADER</div><div class="hero-track"><div id="hero-health-fill"></div></div><span id="hero-health-label">0</span><div id="hero-shield" class="hero-track shield" hidden><div id="hero-shield-fill"></div></div><div id="hero-stamina" class="hero-track stamina"><div id="hero-stamina-fill"></div></div><span class="hero-sub">BLOCK</span></div><div class="hero-abilities"><div id="hero-ability-throw" class="hero-ability"><b>Q</b><span>SABER THROW</span><i class="cd"></i></div><div id="hero-ability-rage" class="hero-ability"><b>E</b><span>FOCUSED RAGE</span><i class="cd"></i></div><div id="hero-ability-choke" class="hero-ability"><b>F</b><span>FORCE CHOKE</span><i class="cd"></i></div></div><div id="hero-controls">W A S D MOVE · SHIFT SPRINT · SPACE JUMP · ALT DODGE · LEFT MOUSE STRIKE · RIGHT MOUSE BLOCK / DEFLECT · Q THROW · E RAGE · F CHOKE · ESC PAUSE</div></div>
+    <div id="notice"></div><div id="controls">W A S D MOVE · SHIFT SPRINT · SPACE JUMP · C CROUCH · ALT ROLL · MOUSE FIRE / AIM · R COOL · V CAMERA · ESC PAUSE</div>
+    <div id="development-note"></div>
+  </div>
+  <section id="screen" class="screen">
+    <div class="panel"><div class="eyebrow">LOCAL BROWSER RECONSTRUCTION</div><h1>STAR WARS<br><strong>BATTLEFRONT II</strong></h1><div class="rule"></div><h2 id="map-name">COMMAND SECTOR NORTH</h2><p id="screen-message">Loading extracted map assets…</p><progress id="progress" max="1" value="0"></progress><p id="loading-detail"></p><div id="menu-controls" hidden><label id="hero-choice" hidden>PLAY AS <select id="hero"><option value="">Trooper</option></select></label><label>MODE <select id="mode"><option value="tdm">Blast · Team Deathmatch</option><option value="ffa">Free for All</option></select></label><button id="start">DEPLOY</button></div><button id="retry" hidden>RETRY LOADING</button><details id="asset-details"><summary>Asset and mechanics provenance</summary><pre id="provenance"></pre></details></div>
+  </section>
+  <script type="module" src="/src/main.js"></script>
+</body></html>

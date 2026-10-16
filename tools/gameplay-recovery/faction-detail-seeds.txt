@@ -1,0 +1,3 @@
+Gameplay/Equipment/Rifles/_DefaultWeapon/WeaponFiring_Default_BlasterRifle_A280
+Gameplay/Equipment/Rifles/A280/A280_Mesh3P
+Gameplay/Equipment/Shared/FX/Rifles/PF_FX_BlasterRifle_A280

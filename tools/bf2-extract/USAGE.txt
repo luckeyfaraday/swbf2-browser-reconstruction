@@ -1,0 +1,142 @@
+BF2 historical extraction adapter
+
+This is an x64 .NET Framework command-line adapter for the exact official Frosty
+Editor 1.0.5.2 runtime in ../frosty-1.0.5.2. It does not launch FrostyEditor.exe.
+The actual profile key is StarWarsBattlefrontII, the generated schema is
+StarWarsIISDK.dll, DataVersion is 20171117, and EBX version is 4.
+
+The runtime and game-schema SHA256 hashes are checked on every non-help command.
+The pair was bootstrapped and tested without opening any installed game archives.
+The installed patchHead 1930263 was indexed and selectively decoded after install
+integrity validation. One MaterialGrid export remains incompatible; hundreds of
+typed EBX, meshes and textures decode successfully. Do not mix the old SDK with Frosty 1.0.6.3:
+its obfuscated attribute-type references fail against the newer runtime.
+
+Commands that do not access the game:
+  .\build.ps1
+  .\bf2-extract.exe help
+  .\bf2-extract.exe selftest
+  node .\validate-glb.cjs
+  .\run-map-extraction.ps1 -Help
+  .\bf2-extract.exe dds-png --input image.dds --out image.png
+  .\bf2-extract.exe schema --types LinearTransform,StaticModelGroupEntityData --out schema.json
+  node --test assemble-scene.test.mjs finalize-scene.test.mjs
+
+After installation integrity validation (use narrow selections; the broad wrapper
+is optional and was NOT used for the actual scene):
+  .\run-map-extraction.ps1 -Game "INSTALL_ROOT" -ConvertAssets
+
+The wrapper inventories names containing DeathStar02_01, exports typed EBX and
+dependencies to depth 6 (limit 12000 assets), writes names lists, and optionally
+batch-converts exported rigid meshes and textures. All outputs default to a new
+timestamped directory under ./exports. -Raw includes raw EBX, RES, and identified
+chunks. -OutputRoot, -Depth, and -MaxAssets override the defaults.
+
+Individual examples:
+  .\bf2-extract.exe inventory --game "INSTALL_ROOT" --out "OUT\inventory"
+  .\bf2-extract.exe inventory --game "INSTALL_ROOT" --out "OUT\inventory" --contains DeathStar02_01 --ebx-only
+  .\bf2-extract.exe inventory --game "INSTALL_ROOT" --out "OUT\bundle" --bundle DeathStar02_01
+  .\bf2-extract.exe export --game "INSTALL_ROOT" --out "OUT\graph" --contains DeathStar02_01 --depth 6 --max-assets 12000
+  .\bf2-extract.exe export --game "INSTALL_ROOT" --out "OUT\root" --name Levels/MP/DeathStar02_01/DeathStar02_01 --depth 1
+  .\bf2-extract.exe mesh --game "INSTALL_ROOT" --out "OUT\meshes" --names "OUT\rigid-mesh-names.txt"
+  .\bf2-info.exe mesh-info --game "INSTALL_ROOT" --out "OUT\mesh-info" --names "OUT\mesh-names.txt"
+  .\bf2-extract.exe texture --game "INSTALL_ROOT" --out "OUT\textures" --names "OUT\texture-names.txt" --png
+  .\bf2-extract.exe raw --game "INSTALL_ROOT" --out "OUT\raw" --kind res --id DECIMAL_RESOURCE_ID
+
+Selection:
+--name selects one exact asset. --names reads one exact asset name per UTF-8 line.
+Otherwise --contains defaults to DeathStar02_01. --bundle alone selects all EBX
+entries in bundles whose names contain that text. If both --bundle and --contains
+are supplied both conditions apply. --all disables the name filter. --type adds
+a case-insensitive type-name substring filter. Selection is case-insensitive.
+--runtime and --work override the vendor and isolated cache directories.
+The work/starwarsii.cache is a completed 253 MB index and supports simultaneous
+readers. PrepareWork verifies an existing SDK rather than replacing a loaded DLL.
+build.ps1 -Output bf2-map.exe can build a separate executable while another runs.
+
+Output semantics:
+Inventory is NDJSON for EBX/RES/chunks plus bundle and summary JSON. A selected
+EBX's bundle memberships determine which RES/chunk inventory rows are included.
+This is bundle co-membership, not proof every resource is an EBX dependency.
+Graph JSON contains entry metadata and an asset with a full typed object table.
+$id/$ref preserve internal identity; $external/classGuid/name preserve external
+references. Resource IDs and other 64-bit integers use decimal strings to avoid
+JavaScript precision loss. Files include GUIDs to avoid sanitized-name collisions.
+export.manifest.json complete means the requested depth completed without errors.
+dependencyClosureComplete separately says whether references remain at that depth.
+Unresolved references and serialization failures are explicit. No claim of complete
+map coverage follows merely from a successful depth-limited export.
+
+Raw export discovers chunks from EBX GUID fields and from parsed MeshSet/Texture
+RES headers. Chunk references embedded in other RES formats are not yet decoded.
+Raw streams are Frosty's decompressed logical data, not untouched CAS archive bytes.
+Resource metadata and source SHA1 are retained in sidecars for provenance.
+mesh-info writes only metadata: actual MeshSet.NameHash (verified against RES
+offset 104), every original LOD and section index, material ID, name, vertex/index
+ranges and source identities. It includes unnamed sections omitted from rendering.
+The hash is not recomputed from EBX names. Evidence BF2-MESHSET-METADATA-001.
+
+Mesh conversion directly parses the historical MeshSet and its LOD chunk. It writes
+GLB 2.0 with positions, direct normals (or triangle-derived normals), UV0, indices,
+section/material IDs, and source metadata. Mesh coordinates remain source Y-up;
+unit scale and winding still need comparison against the installed game. --flip-v
+explicitly flips UV V. Rigid meshes and composite meshes are accepted normally;
+composite vertex part indices and PartTransforms are applied at rest. --allow-unbound
+permits inspection of skinned meshes without skeleton binding, not final export.
+Converter materials remain explicitly neutral; tools/materials binds actual source
+textures separately. The character agent's tools/characters handles skinned assets.
+All 564 successful map mesh conversions retained direct source normal streams.
+
+Texture conversion writes DDS with a DX10 header, including standard BC formats,
+common float/uncompressed formats, cube faces, arrays, and volume data. --png uses
+the official historical dxtex.dll exporter for a single 2D image. Cube/array/volume
+PNG conversion deliberately reports unsupported rather than silently dropping slices.
+DDS files are retained if optional PNG conversion fails. HDR-to-PNG tone mapping
+and channel semantics still require material-specific handling.
+
+Scene tools now available:
+  validate-indexes.py: reads CAT/header bounds and verifies referenced CAS ranges.
+  recover-group-transforms.py: reads original grouped placements from paired Havok
+    2013.3 payloads and cross-checks both pointer widths, duplicate root compounds,
+    and every EBX member PhysicsPartRange/PhysicsPartCountPerInstance mapping.
+  recover-convex-collision.py: resolves Frostbite's shared fixup trailer after both
+    Havok packs, reads a selected static-compound root and zero-radius convex
+    polytopes, and asserts independent 32/64-bit vertex/plane/face/matrix agreement.
+    The targeted grated catwalk yielded seven hulls, 56 vertices, 84 triangles.
+    collision-overrides.json uses these for movement only; native raycast root 1
+    is a separate compressed mesh and is still undecoded.
+  inspect-door-rules.py: traces actual DeathStar door wrapper duration overrides
+    through Core and Controller interfaces. Three wrappers specify 0.75 seconds;
+    map-specific StartOpen and lock/trigger state still need instance tracing.
+  assemble-scene.mjs: follows exact spatial EBX references, composes transforms,
+    expands explicit/recovered groups, preserves variations and physics-part counts.
+  finalize-scene.mjs: selects transformed GLB bounds intersecting padded source
+    Blast CombatArea extents; copies GLBs, emits browser manifest and raw lights.
+    Existing target GLBs are preserved so material binding survives regeneration.
+  rebuild-map-scene.ps1: reproducible scene regeneration from the bounded exports.
+
+Current scene: web/public/assets/map.scene.json, 377 original meshes, 6542 source
+placements, 21 team spawn points plus 17 neutral points preserved separately,
+340 raw source PBR light descriptors. Source XYZ coordinates are unchanged.
+Except for the targeted catwalk convex root, native collision shapes are not
+decoded: render geometry collision is approximate, with grouped members having
+zero physics parts excluded. Three animated ambient
+droid meshes are omitted. Runtime activation, dynamic doors, destruction, original
+lighting calibration and exact movement feel remain separate validation work.
+See progress-20261015.json and scene-assembly-report.json for precise limitations.
+
+Exit codes: 0 success; 1 invalid arguments/bootstrap/fatal error; 2 empty inventory;
+3 partial graph/conversion output or per-asset failures. Inspect manifests and logs.
+Game data is opened read-only. Cache, copied runtime dependencies, and outputs are
+kept outside the installation. No scheduled action is installed by this directory.
+
+Evidence:
+selftest.json: historical profile/schema, typed graph references, uint64 resource
+identity, half floats, synthetic GLB header, native DDS-to-PNG conversion.
+glb-validation.json: Khronos glTF validator 2.0.0-dev.3.10, zero errors/warnings.
+selftest-red.png: independently decoded as 1x1 RGBA (255,0,0,255).
+All selftest assets are synthetic test fixtures, not extracted game content.
+
+Source and assembly evidence is recorded in implementation-status.json. Helpers,
+Mono.Cecil files, runtime-modern, and BootstrapProbe are inspection experiments;
+bf2-extract.exe does not use the modern runtime or those inspection executables.

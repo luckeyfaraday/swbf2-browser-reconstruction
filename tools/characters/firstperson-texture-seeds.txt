@@ -1,0 +1,5 @@
+Characters/Dark/D_Assault_Orig/D_Assault_Orig_01/Texture/T_D_Assault_Orig_01_Body_CS
+Characters/Dark/D_Assault_Orig/D_Assault_Orig_01/Texture/T_D_Assault_Orig_01_Body_NM
+Characters/Dark/D_Assault_Orig/D_Assault_Orig_01/Texture/T_D_Assault_Orig_01_Hands_CS
+Characters/Dark/D_Assault_Orig/D_Assault_Orig_01/Texture/T_D_Assault_Orig_01_Hands_NM
+Characters/BodyParts/Hands_01/Texture/T_Hands_01_C

@@ -1,0 +1,1 @@
+gameplay/equipment/rifles/a280/a280_mesh3p_mesh

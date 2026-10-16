@@ -1,0 +1,11 @@
+Gameplay/Equipment/Rifles/_DefaultWeapon/BlasterProjectile_Default_Rifle
+Gameplay/Equipment/Rifles/_DefaultWeapon/WeaponSway_Default_Rifle
+Gameplay/Characters/StormTrooperShared
+Gameplay/Kits/MP/Assault/Affector_AssaultHealth
+Gameplay/Kits/MP/Assault/Affector_AssaultHealthRegen
+Gameplay/Kits/MP/Assault/Kit_D_Assault_Orig_DS
+Gameplay/Kits/MP/Assault/GP_Assault
+Gameplay/Kits/MP/Assault/Class_Assault
+Gameplay/GameModes/TeamDeathmatch/PF_TeamDeathmatch_MP
+Gameplay/Equipment/Shared/AimingControllers/AimingController_Default_Short_ZoomOverlay
+Gameplay/Equipment/Shared/DefaultFirstPersonCamera

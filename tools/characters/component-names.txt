@@ -1,0 +1,7 @@
+characters/imperial/imperial_stormtrooper/imperial_stormtrooper_male_01/imperial_stormtrooper_male_01_mesh
+characters/imperial/imperial_stormtrooper/imperial_stormtrooper_male_01/imperial_stormtrooper_male_01_helmet_mesh
+characters/light/l_assault_orig/l_assault_orig_ds_01/l_assault_orig_ds_01_mesh
+characters/heads/heads_hakan/heads_hakan_01_mesh
+characters/bodyparts/headgear_05/headgear_05_mesh
+characters/bodyparts/hands_01/hands_01_mesh
+gameplay/equipment/rifles/e11/e11_1p_mesh

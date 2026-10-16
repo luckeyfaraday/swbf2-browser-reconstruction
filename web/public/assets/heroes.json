@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "heroes": [
+    {
+      "id": "darthvader",
+      "name": "Darth Vader",
+      "weaponName": "LIGHTSABER",
+      "team": 1,
+      "model": "characters/vader.glb",
+      "scale": 1.1,
+      "rotationY": 3.141592653589793,
+      "animations": "characters/vader-animations.glb",
+      "saber": {
+        "url": "characters/vader-saber.glb",
+        "attach": {"bone": "Wep_Root", "position": [0, 0, 0], "quaternion": [0, 0, 0, 1]},
+        "blade": {"origin": [0, 0.06, 0], "axis": [0, 1, 0], "length": 0.965, "radius": 0.018, "color": [1, 0.104062, 0.085407], "intensity": 4}
+      },
+      "gameplay": "gameplay/hero-vader.json",
+      "audio": "audio/vader.json"
+    }
+  ],
+  "reactions": "characters/hm-hero-reactions.glb",
+  "provenance": {
+    "model": "characters/vader.source.json (Characters/Hero/DarthVader/DarthVader_01, Walrus_HumanMale, LOD1); scale 1.1 is the source rig scale",
+    "saber": "Hilt on GameplayBones_WeaponBone = Wep_Root with identity offset (vader.source.json saber.attachment). Blade socket hilt (0,0.06,0) along +Y; LightSaberColor1 (1000,104.062,85.407) normalised. Length 0.965 m is inferred from the blade tube light span (hilt y 0.125-1.025); radius and display intensity are browser choices because the source blade is a GPU-expanded mesh particle that is not recovered.",
+    "animations": "characters/vader-animations.glb and hm-hero-reactions.glb (decoded source ANT clips, see tools/characters/VADER-ANIMATION.md)",
+    "audio": "audio/vader.json (tools/audio/VADER.md)",
+    "gameplay": "gameplay/hero-vader.json (tools/gameplay-recovery/vader-evidence.md)"
+  }
+}

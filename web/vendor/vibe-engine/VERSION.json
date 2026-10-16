@@ -1,0 +1,28 @@
+{
+  "files": {
+    "core/engine.js": "0f9ff65e2722fd01",
+    "core/gamepad.js": "128fc52d7c8b707f",
+    "core/input.js": "05e3de4e2ca615aa",
+    "core/menu-nav.js": "d629e1b783071f3e",
+    "core/rng.js": "59a80a42906eb547",
+    "kits/fps/bake/bake-collision-bvh.mjs": "7f0939c3fce8adb1",
+    "kits/fps/bake/bake-navmesh.mjs": "ed43c97d6afe49a3",
+    "kits/fps/bake/gltf-geometry.mjs": "3cfce2b008362acf",
+    "kits/fps/collision-world.js": "18c8d380d5f653a6",
+    "kits/fps/DRIFT.md": "d5c0bfe3c0ddcb77",
+    "kits/fps/navigation.js": "f5866d84e0deed81",
+    "kits/fps/player-controller.js": "2ce5af94e7d2572a",
+    "kits/fps/README.md": "fcd3315d58c93089",
+    "kits/fps/scene-optimizer.js": "72a092bc2311aedc",
+    "kits/fps/touch-controls.js": "b965f0782de33fbd"
+  },
+  "kits": [
+    "fps"
+  ],
+  "engine": {
+    "version": "0.1.0",
+    "commit": "630ec86"
+  },
+  "syncedAt": "2026-10-04T15:48:22.186Z",
+  "note": "Managed by `vibe engine sync`. Change engine code in C:/Games/vibe-engine and sync; `vibe engine status` lists local edits."
+}

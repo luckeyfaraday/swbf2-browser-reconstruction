@@ -1,0 +1,3 @@
+Gameplay/Equipment/Shared/ZoomLevels/FOVTransition_Default
+Gameplay/Profiles/ZoomedSensitivity
+Gameplay/Kits/Specials/Shared/WeaponSway_Specials_Splice
