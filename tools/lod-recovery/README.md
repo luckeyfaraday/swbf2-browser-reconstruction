@@ -67,4 +67,4 @@ Reproduce:
 4. `python tools/lod-recovery/lod-prepare.py`
 5. From `web`: `node --test test/native-lod-assets.test.js`.
 
-No runtime source files or collision data are changed by these helpers. Root owns render selection, integration and actual GPU measurement.
+No runtime source files or collision data are changed by these helpers. The runtime integration step covers render selection, integration and actual GPU measurement.

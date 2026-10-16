@@ -29,7 +29,7 @@ The shader writes ordinary materialID0, metalness0 and reflectance0.5. Two nativ
 
 All four public PNGs preserve packed source channels. Three original mip0 images are1024×1024 and the source default normal is16×16. The grunge DDS is BC7 SRGB; the three normal/data DDS resources are BC7 UNORM. Those transfer functions remain separate. No channel processing or image resampling occurs. Original DDS hashes, byte ranges, selected DDS hashes and PNG hashes are retained. The four PNGs total2,821,784bytes. Browser-generated lower PNG mips, source resource-view overrides and native sampler behavior remain explicit limits.
 
-Integration: import `prepareRecoveredCatwalk2Materials` from `web/src/catwalk2-material.js`, load `/assets/recovered-catwalk2-materials.json`, prepare with the shared loading manager, and invoke `apply(gltf,asset)` before batching/probe decoration. The API exposes `applied` and `provenance`; shader marker is `bf2_catwalk2_surface`. It preserves original geometry, source material IDs, UV0 and source world transforms. Root owns shared runtime integration and GPU validation.
+Integration: import `prepareRecoveredCatwalk2Materials` from `web/src/catwalk2-material.js`, load `/assets/recovered-catwalk2-materials.json`, prepare with the shared loading manager, and invoke `apply(gltf,asset)` before batching/probe decoration. The API exposes `applied` and `provenance`; shader marker is `bf2_catwalk2_surface`. It preserves original geometry, source material IDs, UV0 and source world transforms. The runtime integration step covers shared runtime integration and GPU validation.
 
 Five Node tests check source shader hashes/chains/constants, exact packed texture bytes/transfer functions, the independent math record and normalized SH evidence, real GLTFLoader association for all30 sections, and source-world/probe hook composition on instanced batches. Geometry attribute buffers and probe offsets remain intact. Native packed tangents are still unavailable, so the browser's derivative tangent basis remains an approximation.
 
@@ -43,4 +43,4 @@ cd web
 node --test test/catwalk2-material.test.js
 ```
 
-The visibility audit was captured before root's next LOD expansion. Its source report is retained; rerunning with a different LOD candidate set may legitimately change conservative union bounds and requires a matching retained profile. No browser or GPU was started by this worker.
+The visibility audit was captured before the runtime next LOD expansion. Its source report is retained; rerunning with a different LOD candidate set may legitimately change conservative union bounds and requires a matching retained profile. No browser or GPU was started for this step.

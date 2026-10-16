@@ -29,4 +29,4 @@ Source sky visibility uses the raw normal and coefficient W channels. Its arithm
 
 `source-volcanic-prelighting.js` contains the independently checked GLSL/CPU equations. `source-probes.js` invokes it only for the Volcanic marker, reads all nine float4 coefficients, preserves the raw normal, supplies source-oriented surface-to-camera direction, then applies the existing probe scale once. Ordinary native DFG/albedo/nonmetal composition and native direct lighting are enabled for this proven material class. Other material families and the static-atlas family map are untouched. General probe volume selection/sample centers remain reconstruction choices.
 
-No browser GPU check was run by this worker. Root owns the combined actual-map validation and full suite/build checkpoint after this handoff.
+No browser GPU check was run for this step. The runtime integration step covers the combined actual-map validation and full suite/build checkpoint after this handoff.

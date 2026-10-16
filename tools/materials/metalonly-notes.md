@@ -32,4 +32,4 @@ cd web
 node --test test/metalonly-material.test.js
 ```
 
-Root owns shared integration and actual GPU validation. No GPU run was started by this recovery worker.
+The runtime integration step covers shared integration and actual GPU validation. No GPU run was started for this step.

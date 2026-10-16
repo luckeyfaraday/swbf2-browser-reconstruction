@@ -1,0 +1,22 @@
+name: Feature or reconstruction request
+description: A new map, hero, mechanic, decoder or tool
+labels: [enhancement]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What should be added
+      description: For game content, name the map/hero/mode and, if you know them, the asset paths in the installed data.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Known source data
+      description: Which assets, codecs or fields would it come from? Asset names and GUIDs are fine; never paste or attach extracted game data.
+  - type: checkboxes
+    id: help
+    attributes:
+      label: Contribution
+      options:
+        - label: I would like to work on this.

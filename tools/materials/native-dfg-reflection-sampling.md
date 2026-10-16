@@ -108,7 +108,7 @@ sampling.dispose();
 
 `native-dfg-reflection-math.py` interprets original shader instruction slices independently of the compact formulas.1000randomized dominant-direction/box-projection/LOD cases agree within1.11e-16 in double algebra;96face cases match exactly. It does not claim native float32/FMA execution identity.
 
-Ten focused Node tests pass: exact source mip bytes and layout, the six-level filter/LOD inverse relation, one-mip fallback, sharp/rough and view-angle endpoints, explicit box-ray cases, two-entry LRU/disposal, stale-fetch races, DFG shader composition and rejected missing/bad payloads. This worker did not run a browser; actual GPU validation belongs to the root agent.
+Ten focused Node tests pass: exact source mip bytes and layout, the six-level filter/LOD inverse relation, one-mip fallback, sharp/rough and view-angle endpoints, explicit box-ray cases, two-entry LRU/disposal, stale-fetch races, DFG shader composition and rejected missing/bad payloads. No browser run was part of this step; GPU validation is separate.
 
 ```powershell
 python tools/materials/native-dfg-reflection-shaders.py

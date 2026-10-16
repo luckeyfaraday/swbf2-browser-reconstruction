@@ -21,7 +21,7 @@ The selected replacement is the original-size BC6H irradiance texture plus an
 original-size four-layer BC7 array, retaining source UVs and filtering. That
 comparison reports exact equality for all **134,096 filtered scalar samples**
 and its exact-texel samples. The separate replacement publisher and runtime
-adapter are owned by the integration worker; this document does not activate
+adapter are handled by the runtime integration step; this document does not activate
 them or claim an original-game runtime capture.
 
 ## Reproducible CPU decode

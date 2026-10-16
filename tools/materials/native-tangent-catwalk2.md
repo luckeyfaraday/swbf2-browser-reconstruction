@@ -28,7 +28,7 @@ The adapter/template provide all three interpolated T/B/N columns only for prove
 
 The194-record checkpoint contains319,474 source vertices and4,167 section instances, including4,124 signed-cross and43 explicit-binormal. Its5,408,528-byte payload SHA-256 is `30f6184ef9c4edcfc53bf226c2aecad896fc53a874edeaad80abb23d5cbdd6f4`. All41 lower-LOD alternatives of the covered base sections are retained. Independent source parts and their hashes remain under `exports/materials/native-tangent-catwalk232` and `native-tangent-catwalk236`; publication rebases offsets without changing original part bytes.
 
-Fifty-five focused tangent/LOD/material tests pass. `web/test/source-tangent-catwalk2.test.js` covers original routing, all source vectors/GLTF correspondence, every WARP output, public payload composition, every native LOD and material/probe hook, and the real28-byte fallback. Root owns subsequent actual-map GPU validation.
+Fifty-five focused tangent/LOD/material tests pass. `web/test/source-tangent-catwalk2.test.js` covers original routing, all source vectors/GLTF correspondence, every WARP output, public payload composition, every native LOD and material/probe hook, and the real28-byte fallback. The runtime integration step covers subsequent actual-map GPU validation.
 
 Reproduce from the repository root:
 

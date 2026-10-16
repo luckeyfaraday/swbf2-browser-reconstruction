@@ -20,7 +20,7 @@ The publisher reuses the exact existing Catwalk2 detail and grunge textures, and
 
 The browser adapter is `web/src/catwalk1-material.js`; its marker is `recoveredCatwalk1Shader`, surface is `bf2_catwalk1_surface`, and raw lighting smoothness is `bf2_catwalk1_surface.smoothness`. Assets, source probes and native direct lighting recognize this ordinary material. Three emission remains zero. Native tangent-frame publication remains independent; at initial handoff this family retains the derivative fallback. Native pass activation, runtime overrides, resource-view overrides and anisotropic sampler conversion are not claimed observed.
 
-The six new tests in `web/test/catwalk1-material.test.js` pass, including all 23 real GLTF sections, unaffected geometry and unrelated sections, exact texture and constant bytes, five alternative LOD identities, sampler separation and native DFG/no-DFG composition. The root owns the combined full-suite/build/live checkpoint and atlas publication. Its initial atlas publication matches 309 placed sections with 27 UV records; this is a chart match count, distinct from material coverage.
+The six new tests in `web/test/catwalk1-material.test.js` pass, including all 23 real GLTF sections, unaffected geometry and unrelated sections, exact texture and constant bytes, five alternative LOD identities, sampler separation and native DFG/no-DFG composition. The runtime integration step covers the combined full-suite/build/live checkpoint and atlas publication. Its initial atlas publication matches 309 placed sections with 27 UV records; this is a chart match count, distinct from material coverage.
 
 Reproduce from repository root:
 

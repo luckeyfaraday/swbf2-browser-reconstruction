@@ -45,7 +45,7 @@ fixtures; all five Node tests pass. Tests verify source hashes, shader routing,
 float32 overrides, complete native mip payload preservation, original GLTFLoader
 section routing, immutable geometry and instanced source-probe shader hooks.
 14 verified texture records/URLs are reused; two new native mip PNGs total
-697,872 bytes. No live GPU test was run by this worker.
+697,872 bytes. No live GPU test was run for this step.
 
 Limits: native runtime pass selection remains unobserved; derivative tangent
 parity and native sampler/resource-view details remain incomplete. The numeric

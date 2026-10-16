@@ -89,7 +89,7 @@ cd web
 node --test test/source-dfg.test.js
 ```
 
-Seven focused loader/data tests pass: source-output byte identity, original shader/software-device provenance,81independent numeric comparisons, native domains/channels/row orientation, bilinear boundary behavior, float16 settings, lifecycle and malformed-data rejection. Root owns live integration and GPU validation; this worker did not run a browser.
+Seven focused loader/data tests pass: source-output byte identity, original shader/software-device provenance,81independent numeric comparisons, native domains/channels/row orientation, bilinear boundary behavior, float16 settings, lifecycle and malformed-data rejection. The runtime integration step covers live integration and GPU validation; this step did not run a browser.
 
 ## Ordinary GBuffer and native specular: BF2-NATIVE-GBUFFER-001
 
@@ -126,7 +126,7 @@ An independent small vector interpreter reads the two retained original instruct
 
 `web/src/source-environment-specular.js` exports CPU `decodeSourceOrdinaryMaterial`/`sourceEnvironmentResponse`, GLSL helpers, policy and `injectSourceEnvironmentSpecular(shader,{texture,reflectance:.5,materialId:0})`. Invoke it **after** the existing recovered-material/probe/floor `onBeforeCompile` hook and incorporate the policy version into the caller's program cache key. It expands Three's `lights_fragment_end`, replaces only the `RE_IndirectSpecular` invocation, and retains its `RE_IndirectDiffuse` invocation and any appended native floor diffuse term. The caller should keep duplicate environment diffuse disabled when native probes own diffuse illumination. It uses original `diffuseColor.rgb`, `metalnessFactor`, `roughnessFactor`, normalized geometry normal/view direction and the shared `bf2_sourceDFG` texture. It leaves direct lighting and Three's `dfgLUT` untouched.
 
-The helper recovers the **specular response factor**, not the complete native reflection renderer: radiance still comes from the browser's Three PMREM/filtering, selected cube, normal frame and AO paths. It does not emulate skin, coat, sheen, anisotropy or iridescence. Apply it only to independently proven ordinary source material families. Six tests validate original consumer hashes, independent instruction checks, ordinary metal/dielectric endpoints, low-F0 F90 behavior, actual LUT response, existing floor-hook composition and rejected conflicts. Together with the seven LUT tests,13/13 pass; root owns live GPU validation.
+The helper recovers the **specular response factor**, not the complete native reflection renderer: radiance still comes from the browser's Three PMREM/filtering, selected cube, normal frame and AO paths. It does not emulate skin, coat, sheen, anisotropy or iridescence. Apply it only to independently proven ordinary source material families. Six tests validate original consumer hashes, independent instruction checks, ordinary metal/dielectric endpoints, low-F0 F90 behavior, actual LUT response, existing floor-hook composition and rejected conflicts. Together with the seven LUT tests,13/13 pass; live GPU validation is a separate step.
 
 ```powershell
 python tools/materials/native-dfg-gbuffer.py
@@ -163,7 +163,7 @@ The native map uses source absolute coordinates, with no origin/Z conversion cur
 
 ## Browser module and handoff
 
-`web/src/source-reflections.js` exposes `prepareSourceReflections(renderer, document)`, returning `{update(position, scene), snapshot(), dispose()}`. It changes only `scene.environment`. It never changes scene background, intensity, meshes, geometry or materials. Preparation fetches native payloads and filters original mip0 through Three PMREM; native prefiltered mips are retained in public files for later sampler recovery, not filtered a second time. GPU preparation has not been exercised by this worker because the root agent owns the active browser validation window.
+`web/src/source-reflections.js` exposes `prepareSourceReflections(renderer, document)`, returning `{update(position, scene), snapshot(), dispose()}`. It changes only `scene.environment`. It never changes scene background, intensity, meshes, geometry or materials. Preparation fetches native payloads and filters original mip0 through Three PMREM; native prefiltered mips are retained in public files for later sampler recovery, not filtered a second time. GPU preparation was not exercised in this step.
 
 ```js
 import {prepareSourceReflections} from './source-reflections.js';
@@ -180,7 +180,7 @@ The selector uses only enabled, visible, baked volumes in the non-excluded activ
 
 **Integration requirement with native SH:** Three's standard environment path contributes diffuse IBL as well as specular. Existing native probe materials add source SH after `lights_fragment_maps`. At that integration point, clear `iblIrradiance` when a source environment is active to avoid duplicate environment diffuse; leave `radiance` intact. The reflection module deliberately does not alter materials. The separate native DFG/specular helper above can replace Three's response factor on proven ordinary source materials; other families retain Three's DFG/multiscattering adapter.
 
-Memory budget: raw downloads total 87.73 MiB; 88 PMREM atlases at face size128 are 384×512 RGBA16F, approximately 132 MiB GPU storage. Preparation also uses one temporary 128-face cube (~0.75 MiB) plus shared PMREM scratch targets. CPU source buffers are released after preparation; original files retain all mips. Switching volumes changes only the scene texture and does not regenerate PMREM or clone materials. At present all 88 are prepared eagerly; no second GPU/browser run was launched during this worker's implementation.
+Memory budget: raw downloads total 87.73 MiB; 88 PMREM atlases at face size128 are 384×512 RGBA16F, approximately 132 MiB GPU storage. Preparation also uses one temporary 128-face cube (~0.75 MiB) plus shared PMREM scratch targets. CPU source buffers are released after preparation; original files retain all mips. Switching volumes changes only the scene texture and does not regenerate PMREM or clone materials. At present all 88 are prepared eagerly; no second GPU/browser run was launched during this step's implementation.
 
 Rebuild and verify:
 

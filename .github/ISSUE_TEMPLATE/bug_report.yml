@@ -1,0 +1,51 @@
+name: Bug report
+description: Something in the pipeline or the browser runtime does not work
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. **Do not attach game files, extracted assets, exported EBX or archive dumps** (anything from your install, `exports/` or `web/public/assets/`). Logs, error messages, asset *names* and screenshots of errors are fine.
+  - type: dropdown
+    id: stage
+    attributes:
+      label: Stage
+      options:
+        - Extraction (tools/bf2-extract)
+        - Materials / lighting (tools/materials)
+        - LODs (tools/lod-recovery)
+        - Characters / animation (tools/characters)
+        - Audio (tools/audio)
+        - Gameplay values (tools/gameplay-recovery)
+        - Browser runtime (web/)
+        - Tests / checks
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: Include the command you ran and the full error output.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Windows version, GPU, browser, Node and Python versions, game store (EA app / Steam / Epic)
+      placeholder: Windows 11 23H2, RTX 3050 Laptop, Chrome 141, Node 22, Python 3.11, EA app
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: Checks
+      options:
+        - label: I own the game and ran the tools against my own installation.
+          required: true
+        - label: I did not attach game files or extracted assets.
+          required: true

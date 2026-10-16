@@ -1,5 +1,13 @@
 # SWBF2 Browser Reconstruction
 
+[![CI](https://github.com/luckeyfaraday/swbf2-browser-reconstruction/actions/workflows/ci.yml/badge.svg)](https://github.com/luckeyfaraday/swbf2-browser-reconstruction/actions/workflows/ci.yml)
+[![License: GPL v3](https://img.shields.io/badge/license-GPL--3.0-blue.svg)](LICENSE)
+![Platform: Windows](https://img.shields.io/badge/platform-Windows-0078D6?logo=windows&logoColor=white)
+![Node.js 20+](https://img.shields.io/badge/node-20%2B-339933?logo=nodedotjs&logoColor=white)
+![Python 3.11](https://img.shields.io/badge/python-3.11-3776AB?logo=python&logoColor=white)
+![three.js r186](https://img.shields.io/badge/three.js-r186-black?logo=threedotjs&logoColor=white)
+![Game files: not included](https://img.shields.io/badge/game%20files-not%20included-red)
+
 Tools for rebuilding **Star Wars Battlefront II (2017)** maps in a web browser from **your own installed copy of the game**. The pipeline reads the installed data (read-only), converts meshes, textures, collision, lighting, animations, sounds and gameplay values into browser formats, and a [three.js](https://threejs.org/) runtime plays them back.
 
 The reference target is **Death Star II — Command Sector North** with Blast (team deathmatch) and Free for All, original trooper models, first-person arms, E-11 / A280 rifles, bots, and a playable **Darth Vader** (saber combos, block/deflect, Force choke, saber throw, Focused Rage) built from the game's own animation and kit data.
@@ -35,7 +43,7 @@ The order in which to run them is in **[docs/PIPELINE.md](docs/PIPELINE.md)**. T
 ## Quick start
 
 ```powershell
-git clone <this repo> swbf2-browser-reconstruction
+git clone https://github.com/luckeyfaraday/swbf2-browser-reconstruction.git
 cd swbf2-browser-reconstruction
 $env:BF2_GAME_DIR = 'D:\Games\STAR WARS Battlefront II'   # your install
 # 1. put Frosty Editor 1.0.5.2 in tools/frosty-1.0.5.2, then:
@@ -55,7 +63,9 @@ cd web; npm ci; cd ..
 
 ```powershell
 cd web
-npm test                                  # CPU tests (need your extracted assets)
+npm run check:syntax                      # parse every JS module (what CI runs)
+npm run test:ci                           # tests that need no game data (what CI runs)
+npm test                                  # full CPU suite (needs your extracted assets)
 node test/actual-map-check.mjs            # real map in headless Chrome (BF2_GPU=dgpu for the discrete GPU)
 node test/hero-map-check.mjs --gpu=dgpu   # Vader on the real map
 node test/map-tour-check.mjs --gpu=dgpu   # no shader compiles or long frames after load
@@ -79,6 +89,10 @@ docs/             pipeline order and notes
 exports/          (ignored) intermediate extraction output
 web/public/assets (ignored) runtime assets produced from your install
 ```
+
+## Contributing
+
+Contributions are welcome: see [CONTRIBUTING.md](CONTRIBUTING.md) (most importantly: never commit or attach game data) and the [Code of Conduct](CODE_OF_CONDUCT.md). Report security issues privately as described in [SECURITY.md](SECURITY.md). Changes are listed in [CHANGELOG.md](CHANGELOG.md).
 
 ## Legal
 

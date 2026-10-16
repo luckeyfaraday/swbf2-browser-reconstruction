@@ -55,7 +55,7 @@ npm test
 npm run build
 ```
 
-The routing suite passed 8 tests. The new browser CPU suite passed 7 tests, including all 27 real GLTF sections, UV/fingerprint rejection, distinct shader caches, and DFG/no-DFG emission placement. Original instruction replay passed 4,000 cases with maximum absolute residual `3.774758283725532e-15`; 895 incorrect clamp mutations and 1,000 collapsed-UV mutations were detected. The full suite passed 381 tests, and the build completed with 152 modules. These results precede the root's final Props atlas publication fixture and live GPU checkpoint.
+The routing suite passed 8 tests. The new browser CPU suite passed 7 tests, including all 27 real GLTF sections, UV/fingerprint rejection, distinct shader caches, and DFG/no-DFG emission placement. Original instruction replay passed 4,000 cases with maximum absolute residual `3.774758283725532e-15`; 895 incorrect clamp mutations and 1,000 collapsed-UV mutations were detected. The full suite passed 381 tests, and the build completed with 152 modules. These results precede the the runtime final Props atlas publication fixture and live GPU checkpoint.
 
 Handoff SHA-256:
 

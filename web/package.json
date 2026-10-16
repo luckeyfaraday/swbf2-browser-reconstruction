@@ -1,5 +1,5 @@
 {
-  "name": "battlefront-browser-runtime",
+  "name": "swbf2-browser-runtime",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -8,6 +8,8 @@
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1 --port 7737 --strictPort",
     "test": "node --test test/*.test.js",
+    "test:ci": "node --test test/adaptive-resolution.test.js test/audio.test.js test/collision.test.js test/hero-combat.test.js test/lighting.test.js test/navigation.test.js test/rules.test.js test/skeleton-trim.test.js test/source-exposure-native.test.js test/source-exposure.test.js test/source-reflection-volume-data.test.js test/static-batches.test.js ../tools/bf2-extract/assemble-scene.test.mjs",
+    "check:syntax": "node ../tools/ci/check-syntax.mjs",
     "check:browser": "node test/browser-check.mjs",
     "check:actual-map": "node test/actual-map-check.mjs"
   },
@@ -18,5 +20,10 @@
   "devDependencies": {
     "playwright": "^1.64.1",
     "vite": "^8.3.4"
+  },
+  "description": "Browser runtime for the SWBF2 browser reconstruction (assets are generated from your own install).",
+  "license": "GPL-3.0-or-later",
+  "engines": {
+    "node": ">=20"
   }
 }

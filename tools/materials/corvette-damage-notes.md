@@ -57,7 +57,7 @@ Verification: 3,600 independent text-DXBC arithmetic fixtures, maximum error
 7.61e-15, 1,043 cases with damage weight>1; all six Node tests pass. Tests cover
 source hashes/routing/defaults, original mip payloads, every sidecar vertex,
 real GLTFLoader base/native LOD routing, mismatch rejection, immutable geometry
-and flat array-index/source-probe shader composition. No GPU test by this worker.
+and flat array-index/source-probe shader composition. No GPU test was run for this step.
 
 Limits: paired VS register routing is exact, while original UV0/1 and
 Color0/SubMaterialIndex association to converted inputs remains inference from
